@@ -19,7 +19,6 @@ router.post('/', async (req, res)=>{
         res.status(500).json(error);
     }
 });
-<<<<<<< HEAD
 router.put('/:hootId', async (req, res) => {
     try {
       // Find the hoot:
@@ -46,7 +45,6 @@ router.put('/:hootId', async (req, res) => {
       res.status(500).json(error);
     }
   });
-=======
 
 router.get('/', async (req,res) => {
     try {
@@ -58,5 +56,15 @@ router.get('/', async (req,res) => {
         res.status(500).json(error);
       }
 });
->>>>>>> 2cb59c247f34238abb57b5d19030e0ccd2388711
+
+router.get('/:hootId', async (req, res) => {
+    try {
+      const hoot = await Hoot.findById(req.params.hootId).populate('author');
+      res.status(200).json(hoot);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  });
+
+
 module.exports = router;
