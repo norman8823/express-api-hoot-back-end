@@ -8,9 +8,11 @@ const router = express.Router();
 // ========= Protected Routes =========
 
 router.use(verifyToken);
+
 router.post('/', async (req, res)=>{
     try {
-        req.body.author =res.user_id;
+      console.log(req)
+        req.body.author = req.user._id;
         const hoot = await Hoot.create(req.body);
         hoot._doc.author = req.user;
         res.status(201).json(hoot)
@@ -19,11 +21,12 @@ router.post('/', async (req, res)=>{
         res.status(500).json(error);
     }
 });
+
 router.put('/:hootId', async (req, res) => {
     try {
       // Find the hoot:
       const hoot = await Hoot.findById(req.params.hootId);
-  
+      console.log(hoot)
       // Check permissions:
       if (!hoot.author.equals(req.user._id)) {
         return res.status(403).send("You're not allowed to do that!");
@@ -36,7 +39,7 @@ router.put('/:hootId', async (req, res) => {
         { new: true }
       );
   
-      // Append req.user to the author property:
+      // Append req.user to the author property: populates user object
       updatedHoot._doc.author = req.user;
   
       // Issue JSON response:
@@ -66,7 +69,7 @@ router.get('/:hootId', async (req, res) => {
     }
   });
 
-  router.delete('/:hootId', async (req, res) => {
+router.delete('/:hootId', async (req, res) => {
     try {
       const hoot = await Hoot.findById(req.params.hootId);
   
@@ -80,6 +83,28 @@ router.get('/:hootId', async (req, res) => {
       res.status(500).json(error);
     }
   });
+
+//comment route
+// controllers/hoots.js
+
+router.post('/:hootId/comments', async (req, res) => {
+  try {
+    req.body.author = req.user._id;
+    const hoot = await Hoot.findById(req.params.hootId);
+    hoot.comments.push(req.body);
+    await hoot.save();
+
+    // Find the newly created comment:
+    const newComment = hoot.comments[hoot.comments.length - 1];
+
+    newComment._doc.author = req.user;
+
+    // Respond with the newComment:
+    res.status(201).json(newComment);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
 
 
 module.exports = router;
