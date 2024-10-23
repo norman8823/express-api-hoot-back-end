@@ -8,6 +8,7 @@ const router = express.Router();
 // ========= Protected Routes =========
 
 router.use(verifyToken);
+
 router.post('/', async (req, res)=>{
     try {
       console.log(req)
@@ -20,6 +21,7 @@ router.post('/', async (req, res)=>{
         res.status(500).json(error);
     }
 });
+
 router.put('/:hootId', async (req, res) => {
     try {
       // Find the hoot:
@@ -67,7 +69,7 @@ router.get('/:hootId', async (req, res) => {
     }
   });
 
-  router.delete('/:hootId', async (req, res) => {
+router.delete('/:hootId', async (req, res) => {
     try {
       const hoot = await Hoot.findById(req.params.hootId);
   
@@ -81,6 +83,28 @@ router.get('/:hootId', async (req, res) => {
       res.status(500).json(error);
     }
   });
+
+//comment route
+// controllers/hoots.js
+
+router.post('/:hootId/comments', async (req, res) => {
+  try {
+    req.body.author = req.user._id;
+    const hoot = await Hoot.findById(req.params.hootId);
+    hoot.comments.push(req.body);
+    await hoot.save();
+
+    // Find the newly created comment:
+    const newComment = hoot.comments[hoot.comments.length - 1];
+
+    newComment._doc.author = req.user;
+
+    // Respond with the newComment:
+    res.status(201).json(newComment);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
 
 
 module.exports = router;
