@@ -103,7 +103,7 @@ router.post('/:hootId/comments', async (req, res) => {
     res.status(201).json(newComment);
   } catch (error) {
     res.status(500).json(error);
-  }/d
+  }
 });
 
 
